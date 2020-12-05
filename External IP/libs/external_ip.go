@@ -2,6 +2,7 @@ package libs
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 )
 
 // ExternalIP structure for ipinfo JSON
@@ -28,4 +29,10 @@ func (c *ExternalIP) PrintData() {
 	fmt.Println("Organização:", c.Org)
 	fmt.Println("Código Postal:", c.Postal)
 	fmt.Println("Fuso-Horário:", c.Timezone)
+}
+
+// SetJSONData sets ExternalIP fields with JSON data
+func (c *ExternalIP) SetJSONData(data []byte) {
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	json.Unmarshal(data, c)
 }

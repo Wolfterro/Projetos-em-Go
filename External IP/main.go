@@ -6,15 +6,7 @@ import (
 	"net/http"
 	"os"
 	"external_ip/libs"
-	jsoniter "github.com/json-iterator/go"
 )
-
-func main() {
-	version := 1.1
-
-	printBanner(version)
-	getExternalIP()
-}
 
 func printBanner(version float64) {
 	fmt.Println("========================")
@@ -22,14 +14,17 @@ func printBanner(version float64) {
 	fmt.Printf("========================\n\n")
 }
 
+func printErrorMessage(message string) {
+	fmt.Println("Não foi possível obter o endereço IP externo!")
+	fmt.Println(message)
+}
+
 func getExternalIP() {
 	url := "https://ipinfo.io/json"
 	response, err := http.Get(url)
 
 	if err != nil {
-		fmt.Println("Não foi possível obter o endereço IP externo!")
-		fmt.Println(err)
-
+		printErrorMessage(err.Error())
 		os.Exit(1)
 	}
 
@@ -37,18 +32,22 @@ func getExternalIP() {
 		responseData, err := ioutil.ReadAll(response.Body)
 
 		if err != nil {
-			fmt.Println("Não foi possível obter o endereço IP externo!")
-			fmt.Println(err)
+			printErrorMessage(err.Error())
 		} else {
 			externalIP := new(libs.ExternalIP)
 
-			var json = jsoniter.ConfigCompatibleWithStandardLibrary
-			json.Unmarshal(responseData, externalIP)
-
+			externalIP.SetJSONData(responseData)
 			externalIP.PrintData()
 		}
 	} else {
-		fmt.Println("Não foi possível obter o endereço IP externo!")
-		fmt.Println("HTTP Status Code:", response.StatusCode)
+		err := fmt.Sprintf("HTTP Status Code: %d", response.StatusCode)
+		printErrorMessage(err)
 	}
+}
+
+func main() {
+	version := 1.2
+
+	printBanner(version)
+	getExternalIP()
 }
