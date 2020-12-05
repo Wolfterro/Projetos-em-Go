@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"external_ip/libs"
 )
@@ -20,33 +18,21 @@ func printErrorMessage(message string) {
 }
 
 func getExternalIP() {
-	url := "https://ipinfo.io/json"
-	response, err := http.Get(url)
+	data, err := libs.GetIPInfoData()
 
 	if err != nil {
 		printErrorMessage(err.Error())
 		os.Exit(1)
 	}
 
-	if response.StatusCode == 200 {
-		responseData, err := ioutil.ReadAll(response.Body)
+	externalIP := new(libs.ExternalIP)
 
-		if err != nil {
-			printErrorMessage(err.Error())
-		} else {
-			externalIP := new(libs.ExternalIP)
-
-			externalIP.SetJSONData(responseData)
-			externalIP.PrintData()
-		}
-	} else {
-		err := fmt.Sprintf("HTTP Status Code: %d", response.StatusCode)
-		printErrorMessage(err)
-	}
+	externalIP.SetJSONData(data)
+	externalIP.PrintData()
 }
 
 func main() {
-	version := 1.2
+	version := 1.3
 
 	printBanner(version)
 	getExternalIP()
